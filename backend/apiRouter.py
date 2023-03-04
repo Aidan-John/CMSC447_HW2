@@ -1,4 +1,3 @@
-from flask_restful import Resource, abort
 import sqlite3
 
 ################# CONSTANTS #################
@@ -26,23 +25,25 @@ class DB:
             db.execute("DROP TABLE users")
             db.execute("CREATE TABLE users (user_id INTEGER PRIMARY KEY NOT NULL, name_first TEXT NOT NULL, name_last TEXT NOT NULL, points INTEGER NOT NULL);")
             db.commit()
-            print("table initialized")
+            print("Table initialized.")
         except:
-            print("something went wrong with table init")
+            print("Something went wrong with table init.")
         finally:
             db.close()
     
     def addUser(self, user):
+        retString = f"User Added {user}"
         try:
             db = db_connect()
             curr = db.cursor()
             curr.execute("INSERT INTO users (user_id, name_first, name_last, points) VALUES (?,?,?,?)", (user['user_id'],user['name_first'],user['name_last'],user['points']))
             db.commit()
-            print("User Added: ", user)
+            
         except:
-            print("something went wrong adding ", user)
+            retString = f"something went wrong adding {user}"
         finally:
             db.close()
+            return retString
     
     def getAllUsers(self):
         users = []
@@ -63,6 +64,7 @@ class DB:
         except:
             users = []
         finally:
+            db.close()
             return users
     
     def search(self, user_id):
@@ -80,20 +82,26 @@ class DB:
         except:
             returnUser = {}
         finally:
+            db.close()
             return returnUser
         
     def delete(self, user_id):
+        retString = f"user #{user_id} has been deleted."
         try:
             db = db_connect()
             curr = db.cursor()
             curr.execute(f"DELETE FROM users WHERE user_id='{user_id}'")
             db.commit()
-            print(f"user #{user_id} has been deleted.")
+            
         except:
-            print(f"Something went wrong deleting user #{user_id}")
+            retString = f"Something went wrong deleting user #{user_id}"
+        finally:
+            db.close()
+            return retString
+        
 
     def getPoints(self, first, last):
-        points = 0
+        points = -1
         try:
             db = db_connect()
             db.row_factory = sqlite3.Row
@@ -103,29 +111,12 @@ class DB:
             points = int(user['points'])
             
         except:
-            points = 0
+            points = -1
         finally:
+            db.close()
             return points
 
 
-
-
-                
-
-
-
-
-
-def abort_on_invalid_user(user):
-    print("abort")
-
-class userAction(Resource):
-    def create(self, user):
-        print("create")
-    def search(self, user):
-        print("create")
-    def delete(self, user):
-        print("create")
 
 ################# SETUP #################
     
@@ -146,7 +137,7 @@ if __name__ == "__main__":
 
     newUser = {"name_first": "John", "name_last": "Doe", "user_id": 99, "points": 100}
 
-    database.addUser(newUser)
+    print(database.addUser(newUser))
 
     prettyPrint(database.getAllUsers())
 
@@ -154,7 +145,7 @@ if __name__ == "__main__":
 
     print(database.getPoints("John", "Doe"))
 
-    database.delete(99)
+    print(database.delete(99))
 
     prettyPrint(database.getAllUsers())
 
