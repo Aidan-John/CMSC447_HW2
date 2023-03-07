@@ -14,14 +14,12 @@ givenData = [
 
 ################# HELPER FXNS #################
 
-def db_connect():
-    ret = sqlite3.connect("users.db")
-    return ret
+
 
 class DB:
     def __init__(self):
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             db.execute("DROP TABLE users")
             db.execute("CREATE TABLE users (user_id INTEGER PRIMARY KEY NOT NULL, name_first TEXT NOT NULL, name_last TEXT NOT NULL, points INTEGER NOT NULL);")
             db.commit()
@@ -34,7 +32,7 @@ class DB:
     def addUser(self, user):
         retString = f"User Added {user}"
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             curr = db.cursor()
             curr.execute("INSERT INTO users (user_id, name_first, name_last, points) VALUES (?,?,?,?)", (user['user_id'],user['name_first'],user['name_last'],user['points']))
             db.commit()
@@ -48,7 +46,7 @@ class DB:
     def getAllUsers(self):
         users = []
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
             curr = db.cursor()
             curr.execute("SELECT * FROM users")
@@ -70,7 +68,7 @@ class DB:
     def search(self, user_id):
         returnUser = {}
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
             curr = db.cursor()
             curr.execute(f"SELECT * FROM users WHERE user_id='{user_id}'")
@@ -88,7 +86,7 @@ class DB:
     def delete(self, user_id):
         retString = f"user #{user_id} has been deleted."
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             curr = db.cursor()
             curr.execute(f"DELETE FROM users WHERE user_id='{user_id}'")
             db.commit()
@@ -103,7 +101,7 @@ class DB:
     def getPoints(self, first, last):
         points = -1
         try:
-            db = db_connect()
+            db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
             curr = db.cursor()
             curr.execute(f"SELECT points FROM users WHERE name_first='{first}' AND name_last='{last}'")

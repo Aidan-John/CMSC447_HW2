@@ -1,13 +1,9 @@
 from flask import Flask, jsonify, request
-
+from flask_cors import CORS
 from apiRouter import *
 
 app = Flask(__name__)
-
-
-@app.route("/")
-def index():
-    return 'Index Page'
+CORS(app)
 
 @app.route('/api/users')
 def api_userList():
@@ -20,6 +16,16 @@ def api_searchUser(user_id):
 @app.route('/api/users/delete/<user_id>', methods=['POST'])
 def api_deleteUser(user_id):
     return(jsonify(database.delete(user_id)))
+
+@app.route('/api/users/add', methods=['POST'])
+def api_createUser():
+    newUser = {}
+    newUser["name_first"] = request.args.get('name_first', None)
+    newUser["name_last"] = request.args.get('name_last', None)
+    newUser["user_id"] = request.args.get('user_id', None)
+    newUser["points"] = request.args.get('points', None)
+    return(jsonify(database.addUser(newUser)))
+
 
 @app.route('/api/points', methods=['POST'])
 def api_getPoints():
