@@ -13,7 +13,7 @@ def api_userList():
 def api_searchUser(user_id):
     return(jsonify(database.search(user_id)))
 
-@app.route('/api/users/delete/<user_id>', methods=['POST'])
+@app.route('/api/users/delete/<user_id>')
 def api_deleteUser(user_id):
     return(jsonify(database.delete(user_id)))
 

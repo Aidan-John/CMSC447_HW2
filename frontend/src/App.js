@@ -9,12 +9,68 @@ import LoyaltyIcon from "@mui/icons-material/Loyalty"
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
+import LoadingButton from "@mui/lab/LoadingButton"
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import LogoDevIcon from '@mui/icons-material/LogoDev';
 
 
-
-function ActionMenu(){
+function ActionMenu({ updateHandler, updateLogs, logArray }){
   const [option, setOption] = useState(0);
+  const [buttonState, setButtonState] = useState(0);
 
+  function getLogs(newLog){
+    let logs = logArray.map((x) => x);
+    logs.push(newLog)
+    return logs
+  }
+
+  function ButtonConstructor( {icon, submitHandler, buttonText}){
+    if (buttonState === 0){
+      return(
+        <Button 
+        sx={{maxWidth: '50%', position: "relative", bottom: "10px"}} 
+        variant="contained" 
+        color="primary" 
+        endIcon={icon} 
+        onClick={submitHandler}>{buttonText}</Button>
+
+      )
+    } else if (buttonState === 1){
+      return(
+        <LoadingButton 
+        sx={{maxWidth: '50%', position: "relative", bottom: "10px"}}
+        variant="contained" 
+        color="secondary" 
+        endIcon={icon} 
+        ><span>Loading...</span></LoadingButton>
+      )
+
+    } else if (buttonState === 2){
+      return(
+        <Button
+        sx={{maxWidth: '25%', position: "relative", bottom: "10px"}}
+        variant="contained"
+        color="success"
+        >Success</Button>
+      )
+    } else if (buttonState === 3){
+
+      return(
+        <Button
+        sx={{maxWidth: '25%', position: "relative", bottom: "10px"}}
+        variant="contained"
+        color="warning"
+        >Failed</Button>
+      )
+
+    
+
+  }
+}
 
   function MenuChoices(){
     return(
@@ -35,20 +91,25 @@ function ActionMenu(){
       
     );
   }
+
   function DeleteUser(){
   
     const [id, setID] = useState(0)
-    const [user, setUser] = useState({})
+    const [returnMessage, setReturnMessage] = useState('')
+
 
     const handleSubmit = (e) => {
       e.preventDefault()
-      if (id){
-        console.log(id)
-      }
+      setButtonState(1)
+      fetch("http://localhost:5000/api/users/delete/" + String(id)).then( res => res.json()).then(msg => {
+        setTimeout(() => {setButtonState(2)}, 1000);
+        updateLogs(getLogs(msg))        
+        setTimeout(() => {setButtonState(0)}, 3000);
+      }).then(() => updateHandler(true));
     }
 
     return(
-      <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off" onSubmit={handleSubmit}>
+      <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off">
         <Stack spacing={2} direction="column" align="center">
           <TextField
             label="User ID"
@@ -57,14 +118,11 @@ function ActionMenu(){
             fullWidth
             required
           />
-
-          <Button sx={{maxWidth: '50%'}} variant="contained" color="warning" endIcon={<DeleteIcon />} type="submit">Delete</Button>
+          <ButtonConstructor icon={<DeleteIcon />} submitHandler={handleSubmit} buttonText="Delete" />
         </Stack>
       </Box>
       
     )
-
-
   };
   
   function SearchUser(){
@@ -97,7 +155,6 @@ function ActionMenu(){
       </Box>
       
     )
-
 
   };
 
@@ -137,7 +194,6 @@ function ActionMenu(){
             onChange={(input) => setLastName(input.target.value)}
             fullWidth
             required
-
           />
           <TextField
             label="Points"
@@ -146,14 +202,8 @@ function ActionMenu(){
             fullWidth
             required
           />
-          <Button sx={{maxWidth: '50%'}} variant="contained" endIcon={<AddIcon />} type="submit">Create</Button>
+          <Button sx={{maxWidth: '50%', position: "relative", bottom: "10px"}} variant="contained" endIcon={<AddIcon />} type="submit">Create</Button>
 
-
-            
-
-
-          
-          
         </Stack>
         
       </Box>
@@ -165,14 +215,13 @@ function ActionMenu(){
 
   function PointsUser(){
   
-    const [id, setID] = useState(0)
+    const [name, setName] = useState('')
     const [points, setPoints] = useState(0)
-
 
     const handleSubmit = (e) => {
       e.preventDefault()
-      if (id){
-        console.log(id)
+      if (name){
+        console.log(name)
       }
     }
 
@@ -180,14 +229,15 @@ function ActionMenu(){
       <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Stack spacing={2} direction="column" align="center">
           <TextField
-            label="User ID"
+            label="LastName, FirstName"
             size="small"
-            onChange={(input) => setID(input.target.value)}
+            onChange={(input) => setName(input.target.value)}
             fullWidth
             required
           />
+          
 
-          <Button sx={{maxWidth: '50%'}} variant="contained" endIcon={<SearchIcon />} type="submit">Get Points</Button>
+          <Button sx={{maxWidth: '50%', bottom: "10px"}} variant="contained" endIcon={<SearchIcon />} type="submit">Get Points</Button>
         </Stack>
         
       </Box>
@@ -236,29 +286,22 @@ function ActionMenu(){
     )
   }
 
-
-
-  
-
-
 }
 
 
-
-function UserTable() {
-  const [userData, setUserData] = useState([{}])
+function NewUserTable({ updateBool, updateHandler }) {
+  const [userData, setUserData] =  useState([{}])
   useEffect(() => {
-    fetch("http://localhost:5000/api/users").then(res => res.json()).then(
-      users => {
-        setUserData(users)
-      }
-    )
-  }, []);
+    if(updateBool === true){
+      fetch("http://localhost:5000/api/users").then(res => res.json()).then(users => setUserData(users) );
+      updateHandler(false);
 
+    }
+  }, [updateBool]);
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="userTable">
+    <TableContainer>
+      <Table sx={{ width: 700, margin: "auto" }}  aria-label="userTable">
         <TableHead>
           <TableRow>
             <TableCell>User ID</TableCell>
@@ -282,13 +325,51 @@ function UserTable() {
   );
 }
 
+function ConsoleLog({ logMessages }){
+
+  return(
+    <Box sx={{ width: '100%', width: 500, bgcolor: 'background.paper' }}>
+      <List>
+        {logMessages.map((val) => {
+          return(
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <LogoDevIcon />
+                </ListItemIcon>
+                <ListItemText primary={val} />
+              </ListItemButton>
+            </ListItem>
+          )
+        })}
+      </List>
+    </Box>
+    
+
+  )
+
+}
+
+
 
 
 function App(){
+ 
+  const [updateTable, setUpdateTable] = useState(true)
+  const [logs , setLogs] = useState([])
+
   return (
-    <div className="App">  
-      <UserTable />
-      <ActionMenu />
+    <div className="App">
+      <Stack direction="row" spacing={40}>
+        <div>
+          <NewUserTable updateBool={updateTable} updateHandler={setUpdateTable}/>
+          <ActionMenu updateHandler={setUpdateTable} updateLogs={setLogs} logArray={logs}/>
+        </div>
+        <div>
+          <ConsoleLog logMessages={logs} />
+
+        </div>
+      </Stack>
     </div>
   )
 }
