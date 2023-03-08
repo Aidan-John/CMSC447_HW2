@@ -16,6 +16,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoDevIcon from '@mui/icons-material/LogoDev';
+import Grid from '@mui/material/Grid';
+
 
 
 function ActionMenu({ updateHandler, updateLogs, logArray }){
@@ -237,7 +239,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
           />
           
 
-          <Button sx={{maxWidth: '50%', bottom: "10px"}} variant="contained" endIcon={<SearchIcon />} type="submit">Get Points</Button>
+          <Button sx={{maxWidth: '50%', bottom: "10px"}} variant="contained" endIcon={<LoyaltyIcon />} type="submit">Get Points</Button>
         </Stack>
         
       </Box>
@@ -289,7 +291,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
 }
 
 
-function NewUserTable({ updateBool, updateHandler }) {
+function UserTable({ updateBool, updateHandler }) {
   const [userData, setUserData] =  useState([{}])
   useEffect(() => {
     if(updateBool === true){
@@ -301,7 +303,7 @@ function NewUserTable({ updateBool, updateHandler }) {
 
   return (
     <TableContainer>
-      <Table sx={{ width: 700, margin: "auto" }}  aria-label="userTable">
+      <Table sx={{ width: 500, margin: "auto" }} size="medium" aria-label="userTable">
         <TableHead>
           <TableRow>
             <TableCell>User ID</TableCell>
@@ -328,7 +330,7 @@ function NewUserTable({ updateBool, updateHandler }) {
 function ConsoleLog({ logMessages }){
 
   return(
-    <Box sx={{ width: '100%', width: 500, bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%', width: 300, bgcolor: 'background.paper' }}>
       <List>
         {logMessages.map((val) => {
           return(
@@ -360,16 +362,21 @@ function App(){
 
   return (
     <div className="App">
-      <Stack direction="row" spacing={40}>
-        <div>
-          <NewUserTable updateBool={updateTable} updateHandler={setUpdateTable}/>
-          <ActionMenu updateHandler={setUpdateTable} updateLogs={setLogs} logArray={logs}/>
-        </div>
-        <div>
-          <ConsoleLog logMessages={logs} />
+      <Box sx={{ flexGrow: 1 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={8}>
+            <UserTable updateBool={updateTable} updateHandler={setUpdateTable}/>
+            <ActionMenu updateHandler={setUpdateTable} updateLogs={setLogs} logArray={logs}/>
 
-        </div>
-      </Stack>
+          </Grid>
+          <Grid item xs={4}>
+            <ConsoleLog logMessages={logs} />
+
+          </Grid>
+        </Grid>
+
+      </Box>
+      
     </div>
   )
 }
