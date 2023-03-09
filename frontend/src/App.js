@@ -1,7 +1,14 @@
 import React, {useState, useEffect} from "react";
 
-import {Box, Fab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Menu} from '@mui/material'
 
+import Box from "@mui/material/Box"
+import Fab from "@mui/material/Fab"
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
 import AddIcon from "@mui/icons-material/Add"
 import SearchIcon from "@mui/icons-material/Search"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -25,9 +32,10 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
   const [option, setOption] = useState(0);
   const [buttonState, setButtonState] = useState(0);
 
-  function getLogs(newLog){
+  function getLogs(newLogs){
     let logs = logArray.map((x) => x);
-    logs.push(newLog)
+    newLogs.map((log) => logs.push(log))
+    
     return logs
   }
 
@@ -98,15 +106,15 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
   function DeleteUser(){
   
     const [id, setID] = useState(0)
-    const [returnMessage, setReturnMessage] = useState('')
-
-
+   
     const handleSubmit = (e) => {
       e.preventDefault()
       setButtonState(1)
-      fetch("http://localhost:5000/api/users/delete/" + String(id)).then( res => res.json()).then(msg => {
+      
+      
+      axios.get("http://localhost:5000/api/users/delete/" + String(id)).then( res => res.data).then(msg => {
         setTimeout(() => {setButtonState(2)}, 1000);
-        updateLogs(getLogs(msg))        
+        updateLogs(getLogs([msg]))        
         setTimeout(() => {setButtonState(0)}, 3000);
       }).then(() => updateHandler(true));
     }
@@ -137,9 +145,12 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
     const handleSubmit = (e) => {
       e.preventDefault()
       setButtonState(1)
-      fetch("http://localhost:5000/api/users/" + String(id)).then( res => res.json()).then(msg => {
+      
+      axios.get("http://localhost:5000/api/users/" + String(id)).then( res => res.data).then(msg => {
         setTimeout(() => {setButtonState(2)}, 1000);
-        updateLogs(getLogs(msg))        
+        const multiLine = msg.split('\n')
+        updateLogs(getLogs(multiLine))
+              
         setTimeout(() => {setButtonState(0)}, 3000);
       });
     }
@@ -180,7 +191,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
       axios.post("http://localhost:5000/api/users/add", newUser).then( res => { 
         const ret = res.data
         setTimeout(() => {setButtonState(2)}, 1000);
-        updateLogs(getLogs(ret));
+        updateLogs(getLogs([ret]));
         updateHandler(true);
         setTimeout(() => {setButtonState(0)}, 3000);
 
@@ -233,7 +244,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
     const regex = /([a-z .'-]+), ([a-z .'-]+)/i
   
     const [name, setName] = useState('')
-    const [points, setPoints] = useState(0)
+
 
     const handleSubmit = (e) => {
          
@@ -248,7 +259,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
       axios.post("http://localhost:5000/api/points", ret).then( res => { 
         const ret = res.data
         setTimeout(() => {setButtonState(2)}, 1000);
-        updateLogs(getLogs(ret));
+        updateLogs(getLogs([ret]));
         updateHandler(true);
         setTimeout(() => {setButtonState(0)}, 3000);
 
@@ -259,7 +270,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
       <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Stack spacing={2} direction="column" align="center">
           <TextField
-            label="LastName, FirstName"
+            label="lastName, firstName"
             size="small"
             onChange={(input) => setName(input.target.value)}
             fullWidth
@@ -327,11 +338,11 @@ function UserTable({ updateBool, updateHandler }) {
       updateHandler(false);
 
     }
-  }, [updateBool]);
+  }, [updateHandler, updateBool]);
 
   return (
     <TableContainer>
-      <Table sx={{ width: 500, margin: "auto" }} size="medium" aria-label="userTable">
+      <Table sx={{ width: 500, margin: "auto" }} size="small" aria-label="userTable">
         <TableHead>
           <TableRow>
             <TableCell>User ID</TableCell>
@@ -358,7 +369,7 @@ function UserTable({ updateBool, updateHandler }) {
 function ConsoleLog({ logMessages }){
 
   return(
-    <Box sx={{ width: '100%', width: 400, bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%' }}>
       <List>
         {logMessages.map((val) => {
           return(
@@ -392,12 +403,12 @@ function App(){
     <div className="App">
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-          <Grid item xs={8}>
+          <Grid item xs={7}>
             <UserTable updateBool={updateTable} updateHandler={setUpdateTable}/>
             <ActionMenu updateHandler={setUpdateTable} updateLogs={setLogs} logArray={logs}/>
 
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <ConsoleLog logMessages={logs} />
 
           </Grid>

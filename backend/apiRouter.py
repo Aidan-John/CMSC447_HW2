@@ -50,7 +50,7 @@ class DB:
             db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
             curr = db.cursor()
-            curr.execute("SELECT * FROM users")
+            curr.execute("SELECT * FROM users ORDER BY points DESC")
             rows = curr.fetchall()
 
             for user in rows:
