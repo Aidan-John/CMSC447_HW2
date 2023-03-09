@@ -20,17 +20,22 @@ def api_deleteUser(user_id):
 @app.route('/api/users/add', methods=['POST'])
 def api_createUser():
     newUser = {}
-    newUser["name_first"] = request.args.get('name_first', None)
-    newUser["name_last"] = request.args.get('name_last', None)
-    newUser["user_id"] = request.args.get('user_id', None)
-    newUser["points"] = request.args.get('points', None)
+    data = request.get_json(silent=True)
+
+    newUser["name_first"] = data.get('name_first')
+    newUser["name_last"] = data.get('name_last')
+    newUser["user_id"] = data.get('user_id')
+    newUser["points"] = data.get('points')
+
+    
     return(jsonify(database.addUser(newUser)))
 
 
 @app.route('/api/points', methods=['POST'])
 def api_getPoints():
-    fName = request.args.get('first', None)
-    lName = request.args.get('last', None)
+    data = request.get_json(silent=True)
+    fName = data.get('first')
+    lName = data.get('last')
     return(jsonify(database.getPoints(fName,lName)))
 
 

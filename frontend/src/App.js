@@ -17,6 +17,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoDevIcon from '@mui/icons-material/LogoDev';
 import Grid from '@mui/material/Grid';
+import axios from "axios"
 
 
 
@@ -130,14 +131,17 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
   function SearchUser(){
   
     const [id, setID] = useState(0)
-    const [user, setUser] = useState({})
+  
 
 
     const handleSubmit = (e) => {
       e.preventDefault()
-      if (id){
-        console.log(id)
-      }
+      setButtonState(1)
+      fetch("http://localhost:5000/api/users/" + String(id)).then( res => res.json()).then(msg => {
+        setTimeout(() => {setButtonState(2)}, 1000);
+        updateLogs(getLogs(msg))        
+        setTimeout(() => {setButtonState(0)}, 3000);
+      });
     }
 
     return(
@@ -151,7 +155,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
             required
           />
 
-          <Button sx={{maxWidth: '50%'}} variant="contained" endIcon={<SearchIcon />} type="submit">Search</Button>
+          <ButtonConstructor icon={<SearchIcon />} submitHandler={handleSubmit} buttonText="Search" />
         </Stack>
         
       </Box>
@@ -166,15 +170,25 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
     const [id, setID] = useState(0)
     const [points, setPoints] = useState(0)
 
+    const newUser = {"name_first": firstName, "name_last": lastName, "user_id": id, "points": points};
+
     const handleSubmit = (e) => {
-      e.preventDefault()
-      if (firstName){
-        console.log(firstName)
-      }
+         
+      e.preventDefault();
+      setButtonState(1);
+      
+      axios.post("http://localhost:5000/api/users/add", newUser).then( res => { 
+        const ret = res.data
+        setTimeout(() => {setButtonState(2)}, 1000);
+        updateLogs(getLogs(ret));
+        updateHandler(true);
+        setTimeout(() => {setButtonState(0)}, 3000);
+
+      });
     }
 
     return(
-      <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off" onSubmit={handleSubmit}>
+      <Box className="ResultMenu" component="form" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}} noValidate autoComplete="off">
         <Stack spacing={2} direction="column" align="center">
           <TextField
             label="User ID"
@@ -204,7 +218,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
             fullWidth
             required
           />
-          <Button sx={{maxWidth: '50%', position: "relative", bottom: "10px"}} variant="contained" endIcon={<AddIcon />} type="submit">Create</Button>
+          <ButtonConstructor icon={<AddIcon />} submitHandler={handleSubmit} buttonText="Create" />
 
         </Stack>
         
@@ -216,15 +230,29 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
   };
 
   function PointsUser(){
+    const regex = /([a-z .'-]+), ([a-z .'-]+)/i
   
     const [name, setName] = useState('')
     const [points, setPoints] = useState(0)
 
     const handleSubmit = (e) => {
-      e.preventDefault()
-      if (name){
-        console.log(name)
-      }
+         
+      e.preventDefault();
+      setButtonState(1);
+      let result = name.match(regex)
+      let ret = {}
+      ret['last'] = result[1]
+      ret['first'] = result[2]
+
+      
+      axios.post("http://localhost:5000/api/points", ret).then( res => { 
+        const ret = res.data
+        setTimeout(() => {setButtonState(2)}, 1000);
+        updateLogs(getLogs(ret));
+        updateHandler(true);
+        setTimeout(() => {setButtonState(0)}, 3000);
+
+      });
     }
 
     return(
@@ -239,7 +267,7 @@ function ActionMenu({ updateHandler, updateLogs, logArray }){
           />
           
 
-          <Button sx={{maxWidth: '50%', bottom: "10px"}} variant="contained" endIcon={<LoyaltyIcon />} type="submit">Get Points</Button>
+          <ButtonConstructor icon={<LoyaltyIcon />} submitHandler={handleSubmit} buttonText="Get Points" />
         </Stack>
         
       </Box>
@@ -330,11 +358,11 @@ function UserTable({ updateBool, updateHandler }) {
 function ConsoleLog({ logMessages }){
 
   return(
-    <Box sx={{ width: '100%', width: 300, bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%', width: 400, bgcolor: 'background.paper' }}>
       <List>
         {logMessages.map((val) => {
           return(
-            <ListItem disablePadding>
+            <ListItem disablePadding key={val}>
               <ListItemButton>
                 <ListItemIcon>
                   <LogoDevIcon />

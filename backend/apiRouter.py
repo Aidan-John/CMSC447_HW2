@@ -30,7 +30,8 @@ class DB:
             db.close()
     
     def addUser(self, user):
-        retString = f"User Added {user}"
+        retString = f"{user['name_first']} {user['name_last']} has been added."
+        
         try:
             db = sqlite3.connect("users.db")
             curr = db.cursor()
@@ -67,6 +68,7 @@ class DB:
     
     def search(self, user_id):
         returnUser = {}
+        returnString = ""
         try:
             db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
@@ -81,10 +83,11 @@ class DB:
             returnUser = {}
         finally:
             db.close()
-            return returnUser
+            returnString = f"User ID: {returnUser['user_id']} \nName: {returnUser['name_first']} {returnUser['name_last']} \nPoints: {returnUser['points']}"
+            return returnString
         
     def delete(self, user_id):
-        retString = f"user #{user_id} has been deleted."
+        retString = f"User #{user_id} has been deleted."
         try:
             db = sqlite3.connect("users.db")
             curr = db.cursor()
@@ -100,6 +103,7 @@ class DB:
 
     def getPoints(self, first, last):
         points = -1
+        
         try:
             db = sqlite3.connect("users.db")
             db.row_factory = sqlite3.Row
@@ -112,7 +116,8 @@ class DB:
             points = -1
         finally:
             db.close()
-            return points
+            retString = f"{first} {last} has {points} points."
+            return retString
 
 
 
