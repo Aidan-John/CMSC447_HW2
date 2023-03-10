@@ -13,7 +13,7 @@ cd CMSC447_HW2
 ```
 
 ```bash
-docker-compose up
+sudo docker-compose up
 ```
 
 Navigate to http://localhost:3000
