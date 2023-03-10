@@ -3,7 +3,7 @@ FROM python:3.9
 RUN mkdir /cruddyapi
 WORKDIR /cruddyapi
 
-COPY requirements.txt users.db apiRouter.py app.py .
+COPY requirements.txt users.db apiRouter.py app.py /cruddyapi/
 RUN pip install -r requirements.txt
 
 EXPOSE 5000
