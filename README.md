@@ -8,7 +8,7 @@ A CRUDdy Webapp
 
 Ensure Docker is installed.
 
-```sh
+```bash
 cd CMSC447_HW2
 docker-compose up
 ```
@@ -18,7 +18,7 @@ Navigate to http://localhost:3000
 
 Ensure NodeJS (npm) and Python are installed.
 
-```sh
+```bash
 cd CMSC447_HW2/backend
 python -m venv venv
 source venv/bin/activate
